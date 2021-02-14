@@ -20,8 +20,8 @@ class AclaStd(Peer):
         #This commented out code is and example of a python dictionsary,
         #which is a convenient way to store a value indexed by a particular "key"
         # used for debugging purposes below
-        self.dummy_state = dict()
-        self.dummy_state["cake"] = "lie"
+        # self.dummy_state = dict()
+        # self.dummy_state["cake"] = "lie"
     
     def requests(self, peers, history):
         """
@@ -181,10 +181,8 @@ class AclaStd(Peer):
             bws = []
         else:
             logging.debug("uploading to a random peer")
-            # change my internal state for no reason
-            self.dummy_state["cake"] = "pie"
-
             chosen = []
+            
             if round < 2:
                 #randomly choose peers for unchoking slots
                 requesterList = []
