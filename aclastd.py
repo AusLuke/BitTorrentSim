@@ -45,7 +45,6 @@ class AclaStd(Peer):
         #You won't need it in your final solution, but may want to uncomment it
         #and see what it does to help you get started
         """
-# comment this for final version
         logging.debug("%s still here. Here are some peers:" % self.id)
         for p in peers:
             logging.debug("id: %s, available pieces: %s" % (p.id, p.available_pieces))
@@ -53,10 +52,8 @@ class AclaStd(Peer):
         logging.debug("And look, I have my entire history available too:")
         logging.debug("look at the AgentHistory class in history.py for details")
         logging.debug(str(history))
-# comment this for final version
         """
 
-        requests = []   # We'll put all the things we want here
         # Symmetry breaking is good...
         random.shuffle(needed_pieces)
 
@@ -65,7 +62,7 @@ class AclaStd(Peer):
         peers.sort(key=lambda p: p.id)
 
         # first we need to find the rarest piece
-        frequencies = dict()
+        frequencies = {}
         for peer in peers:
             # get set of available pieces for all peers
             rare_set = set(peer.available_pieces)
@@ -76,9 +73,7 @@ class AclaStd(Peer):
                     frequencies[piece][0] += 1
                     frequencies[piece][1].append(peer.id)
         
-        ### check frequencies creted properly ###
-        #for key, value in frequencies.items():
-        #    print("rarest pieces: ", key, value)
+        requests = []   # We'll put all the things we want here
 
         # request all available pieces from all peers!
         # (up to self.max_requests from each)
@@ -136,22 +131,6 @@ class AclaStd(Peer):
                     r = Request(self.id, peer.id, piece_id, start_block)
                     requests.append(r)
 
-            """ ORIGINAL CODE HERE
-            n = min(self.max_requests, len(isect))
-            # More symmetry breaking -- ask for random pieces.
-            # You could try fancier piece-requesting strategies
-            # to avoid getting the same thing from multiple peers at a time.
-            for piece_id in random.sample(isect, int(n)):
-                # aha! The peer has this piece! Request it.
-                # which part of the piece do we need next?
-                # (must get the next-needed blocks in order)
-                #
-                # If you loop over the piece_ids you want to request above
-                # you don't need to change the rest of this code
-                start_block = self.pieces[piece_id]
-                r = Request(self.id, peer.id, piece_id, start_block)
-                requests.append(r)
-            """
         return requests
 
     def uploads(self, requests, peers, history):
@@ -296,14 +275,13 @@ class AclaStd(Peer):
                 else:
                     chosen = tempList
                     if len(requests) != 0:
-                        request = random.choice(requests)
                         # optimistic unchoking
+                        request = random.choice(requests)
                         chosen.append(request.requester_id)                   
 
-
             
-            # Now that we have chosen who to unchoke, the standard client evenly shares
-            # its bandwidth among them
+            # Now that we have chosen who to unchoke,
+            # the standard client evenly shares its bandwidth among them
             bws = even_split(self.up_bw, len(chosen))
 
         # create actual uploads out of the list of peer ids and bandwidths
