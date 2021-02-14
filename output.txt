@@ -1,0 +1,88 @@
+Starting simulation with config: _init_keys=set(); agent_class_names=['Seed', 'Dummy', 'Dummy']; agent_classes={'Seed': <class 'seed.Seed'>, 'Dummy': <class 'dummy.Dummy'>}; num_pieces=2; blocks_per_piece=2; max_round=5; min_up_bw=1; max_up_bw=3; iters=1
+post_init(): Dummy0 here!
+post_init(): Dummy1 here!
+======= Round 0 ========
+Dummy0 here: still need pieces [0, 1]
+Dummy1 here: still need pieces [0, 1]
+Dummy0 again.  It's round 0.
+No one wants my pieces!
+Dummy1 again.  It's round 0.
+No one wants my pieces!
+
+Round 0:
+Dummy0 downloaded 2 blocks of piece 0 from Seed0
+Dummy1 downloaded 1 blocks of piece 0 from Seed0
+
+pieces for Seed0: [2, 2]
+pieces for Dummy0: [2, 0]
+pieces for Dummy1: [1, 0]
+Pieces completed: Seed0:2, Dummy0:1, Dummy1:0
+======= Round 1 ========
+Dummy0 here: still need pieces [1]
+Dummy1 here: still need pieces [0, 1]
+Dummy0 again.  It's round 1.
+Still here: uploading to a random peer
+Dummy1 again.  It's round 1.
+No one wants my pieces!
+
+Round 1:
+Dummy0 downloaded 1 blocks of piece 1 from Seed0
+Dummy1 downloaded 1 blocks of piece 0 from Dummy0
+Dummy1 downloaded 1 blocks of piece 1 from Seed0
+
+pieces for Seed0: [2, 2]
+pieces for Dummy0: [2, 1]
+pieces for Dummy1: [2, 1]
+Pieces completed: Seed0:2, Dummy0:1, Dummy1:1
+======= Round 2 ========
+Dummy0 here: still need pieces [1]
+Dummy1 here: still need pieces [1]
+Dummy0 again.  It's round 2.
+No one wants my pieces!
+Dummy1 again.  It's round 2.
+No one wants my pieces!
+
+Round 2:
+Dummy0 downloaded 1 blocks of piece 1 from Seed0
+Dummy1 downloaded 1 blocks of piece 1 from Seed0
+
+pieces for Seed0: [2, 2]
+pieces for Dummy0: [2, 2]
+pieces for Dummy1: [2, 2]
+Pieces completed: Seed0:2, Dummy0:2, Dummy1:2
+All done!
+Game history:
+History
+
+Round 0:
+Dummy0 downloaded 2 blocks of piece 0 from Seed0
+Dummy1 downloaded 1 blocks of piece 0 from Seed0
+
+Round 1:
+Dummy0 downloaded 1 blocks of piece 1 from Seed0
+Dummy1 downloaded 1 blocks of piece 0 from Dummy0
+Dummy1 downloaded 1 blocks of piece 1 from Seed0
+
+Round 2:
+Dummy0 downloaded 1 blocks of piece 1 from Seed0
+Dummy1 downloaded 1 blocks of piece 1 from Seed0
+
+======== STATS ========
+Uploaded blocks:
+Dummy1: 0, bw=3
+Dummy0: 1, bw=3
+Seed0: 7, bw=3
+Completion rounds:
+Seed0: 0
+Dummy0: 2
+Dummy1: 2
+All done round: 2
+======== SUMMARY STATS ========
+Uploaded blocks: avg (stddev)
+Dummy1: 0.0  (0.0)
+Dummy0: 1.0  (0.0)
+Seed0: 7.0  (0.0)
+Completion rounds: avg (stddev)
+Seed0: 0.0  (0.0)
+Dummy0: 2.0  (0.0)
+Dummy1: 2.0  (0.0)
