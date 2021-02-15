@@ -158,7 +158,7 @@ class AclaPropShare(Peer):
 
         uploads = []
 
-        if round > 0:
+        if round > 1:
             # get download history
             prevDownHistory = history.downloads[round-1]
             historyDict = {}
@@ -170,12 +170,19 @@ class AclaPropShare(Peer):
                     historyDict[fromId] = download.blocks
                 else:
                     historyDict[fromId] += download.blocks
+            
+            # history of round - 2
+            for download in history.downloads[round-2]:
+                fromId = download.from_id
+                if fromId not in historyDict.keys():
+                    historyDict[fromId] = download.blocks
+                else:
+                    historyDict[fromId] += download.blocks
 
         # there are no requests, so pass empty list
         if len(requests) == 0:
             logging.debug("No one wants my pieces!")
             chosen = []
-            bws = []
         else:
             logging.debug("Still here: uploading to a random peer")
 

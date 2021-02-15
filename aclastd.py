@@ -234,16 +234,16 @@ class AclaStd(Peer):
                         tempList.append(request.requester_id)
                         requests.remove(request)
 
-                # get history of last round
+                # get upload history of last round
                 prevUploadHist = history.uploads[round-1]
                 for i in range(len(prevUploadHist)):
                     chosen.append(prevUploadHist[i].to_id)
 
-                if round % 3 != 0:
+                if round % 3 == 0:
                     # if the slots are full last round, copy all slots
                     if len(chosen) == 4:
                         for i in range(len(tempList)):
-                            chosen[i]= tempList[i]
+                            chosen[i] = tempList[i]
                     # if last round's optimistic unchoking is not chosen this round
                     else:
                         if chosen != [] and chosen[-1] not in tempList:
