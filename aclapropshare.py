@@ -10,7 +10,7 @@ from messages import Upload, Request
 from util import even_split
 from peer import Peer
 
-class aclaproprshare(Peer):
+class AclaPropShare(Peer):
     def post_init(self):
         print("post_init(): %s here!" % self.id)
         ##################################################################################
@@ -43,7 +43,6 @@ class aclaproprshare(Peer):
         #This code shows you what you have access to in peers and history
         #You won't need it in your final solution, but may want to uncomment it
         #and see what it does to help you get started
-        """
         logging.debug("%s still here. Here are some peers:" % self.id)
         for p in peers:
             logging.debug("id: %s, available pieces: %s" % (p.id, p.available_pieces))
@@ -51,7 +50,6 @@ class aclaproprshare(Peer):
         logging.debug("And look, I have my entire history available too:")
         logging.debug("look at the AgentHistory class in history.py for details")
         logging.debug(str(history))
-        """
 
         requests = []   # We'll put all the things we want here
         # Symmetry breaking is good...
@@ -62,35 +60,75 @@ class aclaproprshare(Peer):
         ###########################################################
         # you'll need to write the code to compute these yourself #
         ###########################################################
+        # first we need to find the rarest piece
         frequencies = {}
-
+        for peer in peers:
+            # get set of available pieces for all peers
+            rare_set = set(peer.available_pieces)
+            for piece in rare_set:
+                if piece not in frequencies.keys():
+                    frequencies[piece] = [1, [peer.id]]
+                else:
+                    frequencies[piece][0] += 1
+                    frequencies[piece][1].append(peer.id)
         
-        # Python syntax to perform a sort using a user defined sort key
-        # This exact sort is probably not a useful sort, but other sorts might be useful
-        # peers.sort(key=lambda p: p.id)
+        requests = []   # We'll put all the things we want here
 
         # request all available pieces from all peers!
         # (up to self.max_requests from each)
         #############################################################################
-        # This code asks for pieces at random, you need to adapt it to rarest first #
+        # This code now implements the rarest first algorithm                       #
         #############################################################################
         for peer in peers:
+            # pieces this peer has available
             av_set = set(peer.available_pieces)
+
+            # intersection between what user needs and what other peers have
             isect = av_set.intersection(np_set)
-            n = min(self.max_requests, len(isect))
-            # More symmetry breaking -- ask for random pieces.
-            # You could try fancier piece-requesting strategies
-            # to avoid getting the same thing from multiple peers at a time.
-            for piece_id in random.sample(isect, int(n)):
-                # aha! The peer has this piece! Request it.
-                # which part of the piece do we need next?
-                # (must get the next-needed blocks in order)
-                #
-                # If you loop over the piece_ids you want to request above
-                # you don't need to change the rest of this code
-                start_block = self.pieces[piece_id]
-                r = Request(self.id, peer.id, piece_id, start_block)
-                requests.append(r)
+
+            if self.max_requests >= len(isect):
+                # request message from peers added to requests
+                for piece_id in isect:
+                    start_block = self.pieces[piece_id]
+                    r = Request(self.id, peer.id, piece_id, start_block)
+                    requests.append(r)
+            # rarest first                  
+            else:
+                isect_list = []
+                # number of peers who have this piece and what piece
+                for piece in isect:
+                    isect_list.append((frequencies[piece][0],piece))
+
+               # sort according to first index, which is # of peers who own it
+                isect_list.sort()
+
+                # the fewer peers have the piece, the rarer the piece is
+                # find the # of peers who own the rarest piece 
+                rarestCount = isect_list[0][0]
+
+                # find equally rare pieces
+                sameRareList = []
+                for elem in isect_list:
+                    if elem[0] == rarestCount:
+                        sameRareList.append(elem[1])
+
+                # order should be random   
+                random.shuffle(sameRareList)
+
+                # merge shuffled rarest list and the rest together
+                secondList = []
+                for p in isect_list[len(elem):]:
+                    secondList.append(p[1])
+                isectIDList = sameRareList + secondList
+
+                # cut the list and get needed amount of peer IDs up to max_requests
+                isectIDList = isectIDList[:self.max_requests]
+
+                # write request message to the right peers 
+                for piece_id in isectIDList:
+                    start_block = self.pieces[piece_id]
+                    r = Request(self.id, peer.id, piece_id, start_block)
+                    requests.append(r)
 
         return requests
 
@@ -115,9 +153,27 @@ class aclaproprshare(Peer):
             self.id, round))
         # One could look at other stuff in the history too here.
         # For example, history.downloads[round-1] (if round != 0, of course)
-        # has a list of Download objects for each Download to this peer in
+        # has a list of download objects for each download to this peer in
         # the previous round.
 
+        # reserve a 10% share of bandwidth for optimistic unchoking
+        optBwidthRate = 0.1
+        uploads = []
+
+        if round > 0:
+            # get download history
+            prevDownHistory = history.downloads[round-1]
+            historyDict = {}
+            
+            # history of [round - 1]
+            for download in history.downloads[round-1]:
+                fromId = download.from_id
+                if fromId not in historyDict.keys():
+                    historyDict[fromId] = download.blocks
+                else:
+                    historyDict[fromId] += download.blocks            
+
+        # there are no requests, so pass empty list
         if len(requests) == 0:
             logging.debug("No one wants my pieces!")
             chosen = []
@@ -125,22 +181,44 @@ class aclaproprshare(Peer):
         else:
             logging.debug("Still here: uploading to a random peer")
 
-            ########################################################################
-            # The dummy client picks a single peer at random to unchoke.           #
-            # You should decide a set of peers to unchoke accoring to the protocol #
-            ########################################################################
-            request = random.choice(requests)
-            chosen = [request.requester_id]
+            # get requester List
+            requesters = []
+            for request in requests:
+                if request.requester_id not in requesters:
+                    requesters.append(request.requester_id)
 
+            # dictionary for who to upload to
+            unchokingDict = {}
+            for requester in requesters:
+                if requester in historyDict.keys():
+                    unchokingDict[requester] = historyDict[requester]
 
-            
-            # Now that we have chosen who to unchoke, the standard client evenly shares
-            # its bandwidth among them
-            bws = even_split(self.up_bw, len(chosen))
+            # get total blocks first
+            totalBlocks = 0
+            for peer in unchokingDict.keys():
+                totalBlocks += unchokingDict[peer]
 
-        # create actual uploads out of the list of peer ids and bandwidths
-        # You don't need to change this
-        uploads = [Upload(self.id, peer_id, bw)
-                   for (peer_id, bw) in zip(chosen, bws)]
+            # calculate % for each peer in unchoking dictionary
+            for peer in unchokingDict.keys():
+                percentage = (unchokingDict[peer] / totalBlocks) * (1 - optBwidthRate)
+                unchokingDict[peer] = percentage
+
+            # leave candidate for optimistic unchoking in requests
+            for request in requests:
+                    if request.requester_id in unchokingDict.keys():
+                        requests.remove(request)
+
+            # get upload list with: (id, peer, int(bandwidth * upload %))
+            uploads = []
+            for peer in unchokingDict.keys():
+                percentage = unchokingDict[peer]
+                uploads.append(Upload(self.id, peer, int(self.up_bw * percentage)))
+
+            # add optimistic unchoke
+            if len(requests) > 0:
+                optimisticUnchoke = random.choice(requests)
+                requestID = optimisticUnchoke.requester_id
+                bandwidthForOptim = self.up_bw * optBwidthRate
+                uploads.append(Upload(self.id, requestID, int(bandwidthForOptim)))               
             
         return uploads

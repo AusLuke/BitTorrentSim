@@ -10,7 +10,7 @@ from messages import Upload, Request
 from util import even_split
 from peer import Peer
 
-class aclatourney(Peer):
+class AclaTourney(Peer):
     def post_init(self):
         print("post_init(): %s here!" % self.id)
         ##################################################################################

@@ -17,11 +17,6 @@ class AclaStd(Peer):
         # Declare any variables here that you want to be able to access in future rounds #
         ##################################################################################
 
-        #This commented out code is and example of a python dictionsary,
-        #which is a convenient way to store a value indexed by a particular "key"
-        # used for debugging purposes below
-        # self.dummy_state = dict()
-        # self.dummy_state["cake"] = "lie"
     
     def requests(self, peers, history):
         """
@@ -182,32 +177,32 @@ class AclaStd(Peer):
         else:
             logging.debug("uploading to a random peer")
             chosen = []
-            
+
             if round < 2:
                 #randomly choose peers for unchoking slots
-                requesterList = []
+                requesters = []
                 for request in requests:
-                    if request.requester_id not in requesterList:
-                        requesterList.append(request.requester_id)
+                    if request.requester_id not in requesters:
+                        requesters.append(request.requester_id)
 
                 # append up to 4 random peers to lilst            
                 for i in range(0, 4):
                     if len(requests) != 0:
-                        request = random.choice(requesterList)
+                        request = random.choice(requesters)
                         chosen.append(request)
-                        requesterList.remove(request)    
+                        requesters.remove(request)
                
             # round >= 2
             else:
                 # select the top 3 to be in the unchoking slots
-                requesterList = []
+                requesters = []
                 for request in requests:
-                    if request.requester_id not in requesterList:
-                        requesterList.append(request.requester_id)
+                    if request.requester_id not in requesters:
+                        requesters.append(request.requester_id)
 
                 # append top 3 to rankList
                 rankList = []
-                for requester in requesterList:
+                for requester in requesters:
                     if requester not in historyDict.keys():
                         rankList.append((0, requester))
                     else:
@@ -272,7 +267,7 @@ class AclaStd(Peer):
                                     requests.remove(request)
                 else:
                     chosen = tempList
-                    if len(requests) != 0:
+                    if len(requests) > 0:
                         # optimistic unchoking
                         request = random.choice(requests)
                         chosen.append(request.requester_id)                   
@@ -284,7 +279,6 @@ class AclaStd(Peer):
 
         # create actual uploads out of the list of peer ids and bandwidths
         # You don't need to change this
-        uploads = [Upload(self.id, peer_id, bw)
-                   for (peer_id, bw) in zip(chosen, bws)]
+        uploads = [Upload(self.id, peer_id, bw) for (peer_id, bw) in zip(chosen, bws)]
             
         return uploads
