@@ -185,7 +185,7 @@ class AclaStd(Peer):
                     if request.requester_id not in requesters:
                         requesters.append(request.requester_id)
 
-                # append up to 4 random peers to lilst            
+                # append up to 4 random peers to lilst
                 for i in range(0, 4):
                     if len(requests) != 0:
                         request = random.choice(requesters)
@@ -244,7 +244,7 @@ class AclaStd(Peer):
                     if len(chosen) == 4:
                         for i in range(len(tempList)):
                             chosen[i]= tempList[i]
-                    # if last round's optimistic unchoking is not chosen this round                            
+                    # if last round's optimistic unchoking is not chosen this round
                     else:
                         if chosen != [] and chosen[-1] not in tempList:
                             # copy optimistic unchoking from last round
@@ -259,7 +259,7 @@ class AclaStd(Peer):
                             for i in range(len(tempList)):
                                 chosen.append(tempList[i])
                             
-                            # add random peer to extra slot                              
+                            # add random peer to extra slot
                             for i in range(4 - len(tempList)):
                                 if len(requests) != 0:
                                     request = random.choice(requests)
@@ -270,7 +270,7 @@ class AclaStd(Peer):
                     if len(requests) > 0:
                         # optimistic unchoking
                         request = random.choice(requests)
-                        chosen.append(request.requester_id)                   
+                        chosen.append(request.requester_id)
 
             
             # Now that we have chosen who to unchoke,

@@ -156,8 +156,6 @@ class AclaPropShare(Peer):
         # has a list of download objects for each download to this peer in
         # the previous round.
 
-        # reserve a 10% share of bandwidth for optimistic unchoking
-        optBwidthRate = 0.1
         uploads = []
 
         if round > 0:
@@ -171,7 +169,7 @@ class AclaPropShare(Peer):
                 if fromId not in historyDict.keys():
                     historyDict[fromId] = download.blocks
                 else:
-                    historyDict[fromId] += download.blocks            
+                    historyDict[fromId] += download.blocks
 
         # there are no requests, so pass empty list
         if len(requests) == 0:
@@ -198,6 +196,8 @@ class AclaPropShare(Peer):
             for peer in unchokingDict.keys():
                 totalBlocks += unchokingDict[peer]
 
+            # reserve a 10% share of bandwidth for optimistic unchoking
+            optBwidthRate = 0.1
             # calculate % for each peer in unchoking dictionary
             for peer in unchokingDict.keys():
                 percentage = (unchokingDict[peer] / totalBlocks) * (1 - optBwidthRate)
@@ -219,6 +219,6 @@ class AclaPropShare(Peer):
                 optimisticUnchoke = random.choice(requests)
                 requestID = optimisticUnchoke.requester_id
                 bandwidthForOptim = self.up_bw * optBwidthRate
-                uploads.append(Upload(self.id, requestID, int(bandwidthForOptim)))               
+                uploads.append(Upload(self.id, requestID, int(bandwidthForOptim)))
             
         return uploads
